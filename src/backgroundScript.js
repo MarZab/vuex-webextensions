@@ -12,18 +12,6 @@ class BackgroundScript {
     this.settings = settings;
     this.connections = [];
 
-    // Restore persistent state datas from localstorage
-    if (this.settings.persistentStates.length) {
-      this.browser.getPersistentStates().then((savedStates) => {
-        if (savedStates !== null) {
-          this.store.replaceState({
-            ...this.store.state,
-            ...filterObject(savedStates, this.settings.persistentStates)
-          });
-        }
-      });
-    }
-
     // Hook mutations
     this.store.subscribe((mutation) => {
       // Send mutation to connections pool
@@ -44,8 +32,20 @@ class BackgroundScript {
       }
 
       // Save persistent states to local storage
-      browser.savePersistentStates(filterObject(this.store.state, this.settings.persistentStates));
+      browser.savePersistentStates(filterObject(this.store.state, this.settings.persistentStates.map((x) => x.name)));
     });
+
+    // Restore persistent state datas from localstorage
+    if (this.settings.persistentStates.length) {
+      this.browser.getPersistentStates().then((savedStates) => {
+        if (savedStates !== null) {
+          this.store.replaceState({
+            ...this.store.state,
+            ...filterObject(savedStates, this.settings.persistentStates)
+          });
+        }
+      });
+    }
 
     // Start listening for connections
     browser.handleConnection((connection) => {

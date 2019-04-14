@@ -110,7 +110,10 @@ class Browser {
     });
   }
 
-  savePersistentStates(datas) {
+  savePersistentStates(_datas) {
+    // Make sure we dont pass in any vue state garbage
+    const datas = JSON.parse(JSON.stringify(_datas));
+
     if (this.browser == browsers.chrome) {
       try {
         chrome.storage.local.set({
